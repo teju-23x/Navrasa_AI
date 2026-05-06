@@ -78,7 +78,7 @@ const Login: React.FC = () => {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 text-3xl font-black">
               <span className="text-accent-red">✦</span>
-              <span className="text-text-primary">Navrasa</span>
+              <span className="text-text-primary">Navarasa</span>
               <span className="text-accent-red">AI</span>
             </div>
             <div className="text-[13px] text-text-muted mt-2 uppercase tracking-[0.3em] font-bold">Cinema Guide</div>
@@ -105,7 +105,7 @@ const Login: React.FC = () => {
                type="submit"
                className="w-full h-16 mt-4 bg-accent-red rounded-2xl text-[15px] font-black text-white tracking-[2px] shadow-xl hover:scale-[1.02] active:scale-98 transition-all glass hover:shadow-[0_0_20px_rgba(229,9,20,0.3)]"
              >
-               ENTER NAVRASA
+              ENTER NAVARASA
              </button>
              
              <div className="mt-4 text-center">

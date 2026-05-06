@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Search, Sparkles } from 'lucide-react';
 import { useNavrasa } from '../context/NavrasaContext';
 import MovieCard from '../components/MovieCard';
+import { useLocation } from 'react-router-dom';
 
 const languageTabs = [
   { label: 'Malayalam', code: 'ml' },
@@ -15,21 +16,46 @@ const languageTabs = [
 
 const Home: React.FC = () => {
   const { recommendations, loading, generateRecs, searchQuery, setSearchQuery, resetMovieDiscovery, setError } = useNavrasa();
+  const location = useLocation();
   const [activeLang, setActiveLang] = useState('all');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const quickChips = ['Gritty crime thrillers', 'Classic romantic comedy', 'Sci-fi visuals', '90s action', 'Korean drama'];
+
+  const autoSearchTitle =
+    typeof (location.state as any)?.autoSearchTitle === 'string' && (location.state as any)?.autoSearchTitle.trim()
+      ? (location.state as any)?.autoSearchTitle.trim()
+      : undefined;
+
+  const hasAutoTriggeredRef = useRef(false);
 
   useEffect(() => {
     resetMovieDiscovery();
     setError(null);
   }, [resetMovieDiscovery, setError]);
 
+  // If this page was navigated to from the share landing, auto-run the search.
+  useEffect(() => {
+    if (!autoSearchTitle) return;
+    if (searchQuery !== autoSearchTitle) {
+      hasAutoTriggeredRef.current = false;
+      setSearchQuery(autoSearchTitle);
+    }
+  }, [autoSearchTitle, searchQuery, setSearchQuery]);
+
+  useEffect(() => {
+    if (!autoSearchTitle) return;
+    if (hasAutoTriggeredRef.current) return;
+    if (searchQuery !== autoSearchTitle) return;
+    hasAutoTriggeredRef.current = true;
+    generateRecs();
+  }, [autoSearchTitle, searchQuery, generateRecs]);
+
   return (
     <div className="min-h-screen">
       <section className="px-4 md:px-10 pt-10 md:pt-16 pb-8 text-center">
         <div className="max-w-4xl mx-auto">
           <div className="text-3xl md:text-5xl font-black tracking-tight">
-            <span className="text-accent-red">Navrasa</span> <span className="text-text-primary">AI</span>
+            <span className="text-accent-red">Navarasa</span> <span className="text-text-primary">AI</span>
           </div>
           <p className="mt-3 text-text-muted text-base md:text-lg">Discover your next favourite film</p>
         </div>

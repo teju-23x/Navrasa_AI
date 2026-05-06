@@ -14,17 +14,42 @@ import {
 import { useNavrasa } from '../context/NavrasaContext';
 import { clsx } from 'clsx';
 import { SeriesRecommendation } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 
 const Series: React.FC = () => {
   const { tvRecommendations, loading, error, generateTVRecs, searchQuery, setSearchQuery, resetSeriesDiscovery, setError } = useNavrasa();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const autoSearchTitle =
+    typeof (location.state as any)?.autoSearchTitle === 'string' && (location.state as any)?.autoSearchTitle.trim()
+      ? (location.state as any)?.autoSearchTitle.trim()
+      : undefined;
+
+  const hasAutoTriggeredRef = React.useRef(false);
 
   useEffect(() => {
     resetSeriesDiscovery();
     setError(null);
   }, [resetSeriesDiscovery, setError]);
+
+  // If this page was navigated to from the share landing, auto-run the search.
+  useEffect(() => {
+    if (!autoSearchTitle) return;
+    if (searchQuery !== autoSearchTitle) {
+      hasAutoTriggeredRef.current = false;
+      setSearchQuery(autoSearchTitle);
+    }
+  }, [autoSearchTitle, searchQuery, setSearchQuery]);
+
+  useEffect(() => {
+    if (!autoSearchTitle) return;
+    if (hasAutoTriggeredRef.current) return;
+    if (searchQuery !== autoSearchTitle) return;
+    hasAutoTriggeredRef.current = true;
+    generateTVRecs();
+  }, [autoSearchTitle, searchQuery, generateTVRecs]);
 
   // Debugging logs
   console.log('Series Page Render:', { 
@@ -91,7 +116,7 @@ const Series: React.FC = () => {
               <div className="flex items-center gap-3 md:gap-4 text-3xl md:text-6xl font-black mb-6">
                 <Tv className="text-accent-red" size={44} />
                 <div>
-                  <span className="text-text-primary">Navrasa</span>
+                  <span className="text-text-primary">Navarasa</span>
                   <span className="text-accent-red ml-1">Series</span>
                 </div>
               </div>

@@ -21,6 +21,7 @@ const MovieDetail: React.FC = () => {
   const { recommendations, watchedMovies, loading: contextLoading, wishlistMovies, toggleWishlist } = useNavrasa();
   const [scrollY, setScrollY] = useState(0);
 
+
   // Find the movie in recommendations or history
   const allMovies = [
     ...(recommendations || []), 
@@ -77,6 +78,8 @@ const MovieDetail: React.FC = () => {
     if (rating === undefined || rating === 0) return "N/A";
     return rating.toFixed(1);
   };
+
+
 
   // Only show streaming if it exists and has TMDB logos
   const validStreaming = (movie?.streaming || []).filter((s): s is StreamingPlatform => 
@@ -162,7 +165,7 @@ const MovieDetail: React.FC = () => {
                   <div className="w-10 h-10 rounded-full bg-accent-red/10 flex items-center justify-center">
                     <Star size={20} className="text-accent-red" />
                   </div>
-                  <span className="text-lg font-black text-accent-red uppercase tracking-widest">The Navrasa AI Analysis</span>
+                  <span className="text-lg font-black text-accent-red uppercase tracking-widest">The Navarasa AI Analysis</span>
                </div>
 
                <p className="text-[26px] font-serif italic text-text-primary leading-[1.6] px-2 relative z-10 font-medium">
@@ -296,31 +299,36 @@ const MovieDetail: React.FC = () => {
                </div>
              )}
 
-             <button 
-                onClick={() => movie?.has_trailer && movie?.trailer_url && window.open(movie.trailer_url, '_blank')}
-                className="w-full h-16 bg-accent-red rounded-2xl font-black text-white text-[14px] tracking-[2px] uppercase shadow-2xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
-                disabled={!movie?.has_trailer}
-             >
-                WATCH TRAILER
-             </button>
-             <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleWishlist(movie, 'movie');
-                }}
-                className={clsx(
-                  "w-full h-14 rounded-full font-black text-sm transition-all border inline-flex items-center justify-center gap-2",
-                  inWishlist
-                    ? "bg-accent-red text-white border-accent-red"
-                    : "bg-transparent text-accent-red border-accent-red hover:bg-accent-red/10"
-                )}
-             >
-                <Heart size={18} fill={inWishlist ? "currentColor" : "none"} />
-                {inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
-             </button>
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <button
+                  onClick={() => movie?.has_trailer && movie?.trailer_url && window.open(movie.trailer_url, '_blank')}
+                  className="w-full h-16 bg-accent-red rounded-2xl font-black text-white text-[14px] tracking-[2px] uppercase shadow-2xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+                  disabled={!movie?.has_trailer}
+                >
+                  WATCH TRAILER
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(movie, 'movie');
+                  }}
+                  className={clsx(
+                    "w-full h-14 lg:h-16 rounded-full font-black text-sm transition-all border inline-flex items-center justify-center gap-2",
+                    inWishlist
+                      ? "bg-accent-red text-white border-accent-red"
+                      : "bg-transparent text-accent-red border-accent-red hover:bg-accent-red/10"
+                  )}
+                >
+                  <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
+                  {inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+                </button>
+             </div>
           </div>
         </div>
       </div>
+
+
     </div>
   );
 };

@@ -9,6 +9,9 @@ const Wishlist: React.FC = () => {
   const [selectedItem, setSelectedItem] = React.useState<
     (LibraryEntry & { type: 'movie' | 'series' | 'anime' }) | null
   >(null);
+
+
+
   const items = [
     ...(wishlistMovies || []).map((item) => ({ ...item, type: 'movie' as const })),
     ...(wishlistSeries || []).map((item) => ({ ...item, type: 'series' as const })),
@@ -119,6 +122,7 @@ const Wishlist: React.FC = () => {
                   <p style={{ fontSize: 12, color: '#666', marginTop: 8 }}>Streaming availability not available</p>
                 )}
                 <div className="flex flex-wrap gap-3">
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -143,6 +147,8 @@ const Wishlist: React.FC = () => {
           </div>
         </div>
       )}
+
+
     </div>
   );
 };

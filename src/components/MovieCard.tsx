@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Star, Play, ChevronRight, Heart } from 'lucide-react';
 import { Recommendation, SeriesRecommendation, StreamingPlatform } from '../types';
@@ -14,6 +14,9 @@ interface MovieCardProps {
 const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
   const navigate = useNavigate();
   const { wishlistMovies, wishlistSeries, wishlistAnime, toggleWishlist } = useNavrasa();
+
+
+
 
   const displayRating = (rating: number | undefined) => {
     if (rating === undefined || rating === 0) return "N/A";
@@ -55,6 +58,8 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
        {/* Gradient Overlay */}
        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
        
+
+
        {/* Status/Type Badge */}
        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
           <button
@@ -90,7 +95,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
 
        {/* Streaming Badges - Only if valid and has logos */}
        {validStreaming.length > 0 && (
-         <div className="absolute top-4 left-4 flex gap-1.5 translate-y-[-40px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+         <div className="absolute top-4 left-4 flex gap-1.5 translate-y-[-40px] opacity-0 group-hover:translate-y-[40px] group-hover:opacity-100 transition-all duration-500">
             {validStreaming.map((s, i) => (
               <div key={i} className="w-8 h-8 rounded-lg bg-black/40 backdrop-blur-md p-1 border border-white/20 shadow-lg" title={s.name}>
                  <img src={s.logo} alt={s.name} className="w-full h-full object-contain" />
@@ -138,6 +143,8 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
               </div>
           </div>
        </div>
+
+
     </motion.div>
   );
 };

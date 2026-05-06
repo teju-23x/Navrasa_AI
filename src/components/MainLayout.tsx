@@ -53,7 +53,7 @@ const MainLayout: React.FC = () => {
                   />
                   <div className="flex items-center gap-3 text-4xl font-black relative z-10">
                     <span className="text-[#E50914]">✦</span>
-                    <span className="text-text-primary tracking-wide">Navrasa</span>
+                    <span className="text-text-primary tracking-wide">Navarasa</span>
                     <span className="text-[#E50914]">AI</span>
                   </div>
                </div>

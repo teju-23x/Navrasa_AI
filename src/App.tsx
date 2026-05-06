@@ -12,6 +12,7 @@ import Admin from './pages/Admin';
 import Wishlist from './pages/Wishlist';
 import Library from './pages/Library';
 import Profile from './pages/Profile';
+import SharePage from './pages/SharePage';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -101,6 +102,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Route */}
       <Route path="/login" element={<Login key={location.pathname} />} />
+      <Route path="/share" element={<SharePage key={location.pathname} />} />
 
       {/* Protected Layout Route */}
       <Route

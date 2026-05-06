@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Play,
@@ -13,7 +13,7 @@ import {
 import { useNavrasa } from '../context/NavrasaContext';
 import { clsx } from 'clsx';
 import { SeriesRecommendation } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 
 const episodeOrSeasonLabel = (item: SeriesRecommendation | null) => {
@@ -43,11 +43,27 @@ const Anime: React.FC = () => {
     setError
   } = useNavrasa();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const autoSearchTitle =
+    typeof (location.state as any)?.autoSearchTitle === 'string' && (location.state as any)?.autoSearchTitle.trim()
+      ? (location.state as any)?.autoSearchTitle.trim()
+      : undefined;
+  const hasAutoTriggeredRef = useRef(false);
 
   useEffect(() => {
     resetAnimeDiscovery();
     setError(null);
   }, [resetAnimeDiscovery, setError]);
+
+  // If this page was navigated to from the share landing, auto-run the search.
+  useEffect(() => {
+    if (!autoSearchTitle) return;
+    if (hasAutoTriggeredRef.current) return;
+    hasAutoTriggeredRef.current = true;
+    setAnimeSearchQuery(autoSearchTitle);
+    generateAnimeRecs(autoSearchTitle);
+  }, [autoSearchTitle, generateAnimeRecs, setAnimeSearchQuery]);
 
   const isInitialState = (!animeRecommendations || animeRecommendations.length === 0) && !loading && !error;
   const hasResults = animeRecommendations && animeRecommendations.length > 0;
@@ -111,7 +127,7 @@ const Anime: React.FC = () => {
               <div className="flex items-center gap-3 md:gap-4 text-3xl md:text-6xl font-black mb-6">
                 <Zap className="text-accent-red" size={44} />
                 <div>
-                  <span className="text-text-primary">Navrasa</span>
+                  <span className="text-text-primary">Navarasa</span>
                   <span className="text-accent-red ml-1">Anime</span>
                 </div>
               </div>

@@ -122,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <Link to="/" onClick={onClose} className="p-6 border-b border-border block hover:bg-bg-card transition-colors">
         <div className="flex items-center gap-2">
           <span className="text-accent-red text-xl">✦</span>
-          <span className="font-bold text-lg text-text-primary">Navrasa <span className="text-accent-red">AI</span></span>
+          <span className="font-bold text-lg text-text-primary">Navarasa <span className="text-accent-red">AI</span></span>
         </div>
         <div className="text-[11px] text-text-muted uppercase tracking-[0.2em] mt-1 font-medium">AI Cinema Guide</div>
       </Link>
