@@ -72,16 +72,20 @@ export async function getRecommendations(
   preferences: UserPreferences,
   query: string = ""
 ): Promise<Recommendation[]> {
+  const langContext = preferences.languages.map(l => languageMap[l] || l).join('/');
+  const indContext = preferences.industries.map(i => industryMap[i] || i).join('/');
+
   const body = {
-    name: query || "latest movies",
+    name: query ? `${query} (${indContext} ${langContext})` : "latest movies",
     preferences: {
-      language: preferences.languages.map(l => languageMap[l] || l).join('/'),
-      industry: preferences.industries.map(i => industryMap[i] || i).join('/'),
+      language: langContext,
+      industry: indContext,
       genre: preferences.genres,
       mood: preferences.moods,
       content_type: preferences.contentType
     },
-    watched_ids: movies.filter(m => !m.isWatchlist).map(m => ({ title: m.title, year: m.year }))
+    watched_ids: movies.filter(m => !m.isWatchlist).map(m => ({ title: m.title, year: m.year })),
+    context: `User industry: ${indContext}, Language: ${langContext}`
   };
   trackSearchStats(body.preferences.language, body.preferences.genre);
 
@@ -133,16 +137,20 @@ export async function getTVRecommendations(
   preferences: UserPreferences,
   query: string = ""
 ): Promise<{ series: SeriesRecommendation[], songs: Recommendation[] }> {
+  const langContext = preferences.languages.map(l => languageMap[l] || l).join('/');
+  const indContext = preferences.industries.map(i => industryMap[i] || i).join('/');
+
   const body = {
-    name: query || "latest series",
+    name: query ? `${query} (${indContext} ${langContext})` : "latest series",
     preferences: {
-      language: preferences.languages.map(l => languageMap[l] || l).join('/'),
-      industry: preferences.industries.map(i => industryMap[i] || i).join('/'),
+      language: langContext,
+      industry: indContext,
       genre: preferences.genres,
       mood: preferences.moods,
       content_type: 'series'
     },
-    watched_series: watchedSeries.map(s => ({ title: s.title, year: s.year }))
+    watched_series: watchedSeries.map(s => ({ title: s.title, year: s.year })),
+    context: `User industry: ${indContext}, Language: ${langContext}`
   };
   trackSearchStats(body.preferences.language, body.preferences.genre);
 

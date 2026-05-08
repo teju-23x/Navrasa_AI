@@ -99,13 +99,13 @@ export const NavrasaProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [preferences, setPreferences] = useState<UserPreferences>({
+  const [preferences, setPreferences] = useState<UserPreferences>(() => safeReadLocalStorage(STORAGE_KEYS.API_CACHE + '_prefs', {
     languages: ['English', 'Tamil'],
     genres: ['Drama', 'Thriller'],
     industries: ['Hollywood', 'Kollywood'],
     contentType: 'both',
     moods: ['Epic', 'Intimate']
-  });
+  }));
 
   const [userRatings, setUserRatings] = useState<Record<string, number>>(() => safeReadLocalStorage(STORAGE_KEYS.USER_RATINGS, {}));
 
@@ -156,6 +156,49 @@ export const NavrasaProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.WISHLIST_ANIME, JSON.stringify(wishlistAnime));
   }, [wishlistAnime]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.API_CACHE + '_prefs', JSON.stringify(preferences));
+  }, [preferences]);
+
+  useEffect(() => {
+    if (recommendations.length > 0) {
+      localStorage.setItem('navrasa_last_movie_results', JSON.stringify(recommendations));
+      localStorage.setItem('navrasa_last_movie_query', searchQuery);
+    }
+  }, [recommendations, searchQuery]);
+
+  useEffect(() => {
+    if (tvRecommendations.length > 0) {
+      localStorage.setItem('navrasa_last_tv_results', JSON.stringify(tvRecommendations));
+      localStorage.setItem('navrasa_last_tv_query', searchQuery);
+    }
+  }, [tvRecommendations, searchQuery]);
+
+  useEffect(() => {
+    if (animeRecommendations.length > 0) {
+      localStorage.setItem('navrasa_last_anime_results', JSON.stringify(animeRecommendations));
+      localStorage.setItem('navrasa_last_anime_query', animeSearchQuery);
+    }
+  }, [animeRecommendations, animeSearchQuery]);
+
+  // Initial load of last results
+  useEffect(() => {
+    const lastMovies = safeReadLocalStorage('navrasa_last_movie_results', null);
+    const lastMovieQuery = localStorage.getItem('navrasa_last_movie_query');
+    if (lastMovies) setRecommendations(lastMovies);
+    if (lastMovieQuery) setSearchQuery(lastMovieQuery);
+
+    const lastTV = safeReadLocalStorage('navrasa_last_tv_results', null);
+    const lastTVQuery = localStorage.getItem('navrasa_last_tv_query');
+    if (lastTV) setTvRecommendations(lastTV);
+    if (lastTVQuery) setSearchQuery(lastTVQuery);
+
+    const lastAnime = safeReadLocalStorage('navrasa_last_anime_results', null);
+    const lastAnimeQuery = localStorage.getItem('navrasa_last_anime_query');
+    if (lastAnime) setAnimeRecommendations(lastAnime);
+    if (lastAnimeQuery) setAnimeSearchQuery(lastAnimeQuery);
+  }, []);
 
   const updateRating = useCallback((title: string, rating: number) => {
     setUserRatings(prev => {

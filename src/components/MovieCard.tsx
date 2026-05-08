@@ -15,9 +15,6 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
   const navigate = useNavigate();
   const { wishlistMovies, wishlistSeries, wishlistAnime, toggleWishlist } = useNavrasa();
 
-
-
-
   const displayRating = (rating: number | undefined) => {
     if (rating === undefined || rating === 0) return "N/A";
     return rating.toFixed(1);
@@ -27,10 +24,6 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
     return item.type === 'series' || item.type === 'anime';
   };
 
-  // Only show streaming if it exists, has items, and each item has a logo starting with TMDB URL
-  const validStreaming = (item.streaming || []).filter((s): s is StreamingPlatform => 
-    typeof s !== 'string' && !!s.logo && s.logo.startsWith('https://image.tmdb.org')
-  );
   const wished = isSeriesLike(item)
     ? (item.type === 'anime' ? wishlistAnime : wishlistSeries).some((entry) => entry.title === item.title)
     : wishlistMovies.some((entry) => entry.title === item.title);
@@ -41,110 +34,80 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, idx }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: idx * 0.04 }}
-      className="group relative aspect-[2/3] rounded-[24px] overflow-hidden cursor-pointer hover:scale-[1.05] hover:z-20 hover:shadow-[0_40px_80px_rgba(0,0,0,0.5)] transition-all duration-500 bg-bg-card border border-border"
+      className="group relative cursor-pointer"
       onClick={() => {
         if (item.type === 'anime') navigate(`/anime/${item.id}`);
         else if (item.type === 'series') navigate(`/series/${item.id}`);
         else navigate(`/movie/${item.id}`);
       }}
     >
-       {/* Poster Layer */}
-       <img 
-         src={item.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000"} 
-         alt={item.title} 
-         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-       />
-       
-       {/* Gradient Overlay */}
-       <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
-       
-
-
-       {/* Status/Type Badge */}
-       <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              toggleWishlist(
-                item,
-                item.type === 'anime' ? 'anime' : isSeriesLike(item) ? 'series' : 'movie'
-              );
-            }}
-            className={clsx(
-              "w-9 h-9 rounded-full border flex items-center justify-center transition-all relative z-10",
-              wished ? "bg-accent-red text-white border-accent-red animate-[heartPop_150ms_ease]" : "bg-black/30 text-white border-white/40 hover:bg-black/50"
-            )}
-          >
-            <Heart size={15} fill={wished ? "currentColor" : "none"} />
-          </button>
-          <div className="glass bg-bg-surface/80 text-accent-gold px-2.5 py-1 rounded-xl text-[13px] font-black flex items-center gap-1.5 shadow-xl border border-accent-gold/20">
-             <Star size={12} fill="currentColor" /> {displayRating(item.rating)}
+       <div className="vintage-card relative aspect-[2/3] overflow-hidden group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300">
+          {/* Halftone Pattern Overlay */}
+          <div className="absolute inset-0 halftone opacity-10 z-1 pointer-events-none" />
+          
+          <img 
+            src={item.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000"} 
+            alt={item.title} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+          />
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all flex flex-col justify-end p-4">
+             {item.has_trailer && (
+               <div className="mb-2 self-start bg-accent-gold text-navy text-[8px] font-black px-2 py-1 flex items-center gap-1 shadow-[2px_2px_0px_#1A1A2E]">
+                 <Play size={8} fill="currentColor" /> TRAILER AVAILABLE
+               </div>
+             )}
+             <p className="text-[11px] font-black italic text-cream leading-relaxed line-clamp-3">
+                "{item.match_reason}"
+             </p>
           </div>
-          {isSeriesLike(item) && item.status && (
-            <div className={clsx(
-              "px-2.5 py-1 rounded-xl text-[10px] font-black border shadow-xl uppercase tracking-wider",
-              item.status === 'Returning Series' ? 'bg-green-500/20 text-green-500 border-green-500/30' :
-              item.status === 'Ended' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-              'bg-bg-card text-text-hint border-border'
-            )}>
-              {item.status}
-            </div>
+
+          {/* Action Badges */}
+          <div className="absolute top-2 right-2 flex flex-col gap-2 z-20">
+             <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 toggleWishlist(item, item.type === 'anime' ? 'anime' : isSeriesLike(item) ? 'series' : 'movie');
+               }}
+               className={clsx(
+                 "w-9 h-9 border-2 border-navy flex items-center justify-center transition-all",
+                 wished ? "bg-accent-red text-white" : "bg-white text-navy hover:bg-accent-gold"
+               )}
+             >
+               <Heart size={16} fill={wished ? "currentColor" : "none"} />
+             </button>
+             <div className="bg-accent-red border-2 border-navy px-2 py-1 text-white text-[10px] font-black shadow-[2px_2px_0px_#1A1A2E]">
+                ★ {displayRating(item.rating)}
+             </div>
+          </div>
+       </div>
+
+       <div className="mt-4 text-center">
+          <h4 className="text-sm font-black text-navy uppercase tracking-widest line-clamp-1 group-hover:text-accent-red transition-colors">{item.title}</h4>
+          <div className="flex items-center justify-center gap-2 mt-1">
+             <span className="text-[10px] text-navy/40 font-black uppercase tracking-tighter">{item.year}</span>
+             <span className="text-accent-gold">•</span>
+             <span className="text-[10px] text-navy/40 font-black uppercase tracking-tighter">{item.type}</span>
+          </div>
+
+          {/* Streaming Logos per Fix 2 */}
+          {item.streaming && item.streaming.length > 0 && (
+             <div className="flex justify-center gap-1.5 mt-3">
+                 {item.streaming
+                    .filter((s: any) => typeof s !== 'string' && s?.logo)
+                    .slice(0, 3)
+                    .map((s: any, i: number) => (
+                      <div key={i} className="w-7 h-7 bg-white border border-navy/10 rounded-full p-1 shadow-sm flex items-center justify-center group/logo hover:scale-110 transition-transform">
+                         <img 
+                           src={s.logo} 
+                           alt={s.name || 'Platform'} 
+                           className="w-full h-full object-contain grayscale-[0.2] group-hover/logo:grayscale-0"
+                         />
+                      </div>
+                   ))}
+             </div>
           )}
        </div>
-
-       {/* Streaming Badges - Only if valid and has logos */}
-       {validStreaming.length > 0 && (
-         <div className="absolute top-4 left-4 flex gap-1.5 translate-y-[-40px] opacity-0 group-hover:translate-y-[40px] group-hover:opacity-100 transition-all duration-500">
-            {validStreaming.map((s, i) => (
-              <div key={i} className="w-8 h-8 rounded-lg bg-black/40 backdrop-blur-md p-1 border border-white/20 shadow-lg" title={s.name}>
-                 <img src={s.logo} alt={s.name} className="w-full h-full object-contain" />
-              </div>
-            ))}
-         </div>
-       )}
-
-       {/* Content Layer */}
-       <div className="absolute inset-x-0 bottom-0 p-5">
-          <h4 className="text-[17px] font-bold text-text-primary line-clamp-2 leading-tight mb-2 group-hover:text-accent-red transition-colors">{item.title}</h4>
-          <div className="flex items-center gap-3 text-xs font-bold text-text-muted">
-             <span className="text-accent-gold flex items-center gap-1">⭐ {displayRating(item.rating)}</span>
-             <span>•</span>
-             <span>{item.year}</span>
-             {isSeriesLike(item) && (
-               <>
-                 <span>•</span>
-                 <span>
-                   {item.episode_count || item.number_of_episodes
-                     ? `${item.episode_count || item.number_of_episodes} Episodes`
-                     : `${item.total_seasons || 1} Seasons`}
-                 </span>
-               </>
-             )}
-          </div>
-          
-          {/* Match Reason (Reveal on Hover) */}
-          <div className="max-h-0 overflow-hidden group-hover:max-h-[140px] transition-all duration-700 ease-in-out">
-             <p className="mt-4 text-[12px] italic text-text-muted leading-relaxed line-clamp-3 font-medium">
-                {item.match_reason}
-             </p>
-             <div className="mt-5 flex justify-between items-center">
-                {item.has_trailer && item.trailer_url ? (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); window.open(item.trailer_url, '_blank'); }}
-                    className="h-9 px-4 bg-accent-red rounded-xl text-[11px] font-black text-white flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-lg"
-                  >
-                     <Play size={12} fill="white" /> TRAILER
-                  </button>
-                ) : <div />}
-                <span className="text-[11px] font-black text-accent-red uppercase tracking-widest flex items-center gap-1.5 group/link hover:gap-2 transition-all">
-                  Details <ChevronRight size={14} />
-                </span>
-              </div>
-          </div>
-       </div>
-
-
     </motion.div>
   );
 };

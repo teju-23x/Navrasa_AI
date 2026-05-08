@@ -10,6 +10,7 @@ import SeriesDetail from './pages/SeriesDetail';
 import PersonDetail from './pages/PersonDetail';
 import Admin from './pages/Admin';
 import Wishlist from './pages/Wishlist';
+import Diary from './pages/Diary';
 import Library from './pages/Library';
 import Profile from './pages/Profile';
 import SharePage from './pages/SharePage';
@@ -121,6 +122,7 @@ const AppRoutes = () => {
         <Route path="movie/:id" element={<MovieDetail key={location.pathname} />} />
         <Route path="person/:name" element={<PersonDetail key={location.pathname} />} />
         <Route path="wishlist" element={<Wishlist key={location.pathname} />} />
+        <Route path="diary" element={<Diary key={location.pathname} />} />
         <Route path="library" element={<Library key={location.pathname} />} />
         <Route path="profile" element={<Profile key={location.pathname} />} />
         <Route path="admin" element={<Admin key={location.pathname} />} />

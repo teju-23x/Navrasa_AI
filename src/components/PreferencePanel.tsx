@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check } from 'lucide-react';
+import { X, Check, Settings2, Star } from 'lucide-react';
 import { useNavrasa } from '../context/NavrasaContext';
 import { clsx } from 'clsx';
 
@@ -15,32 +15,32 @@ const PreferencePanel: React.FC<PreferencePanelProps> = ({ isOpen, onClose }) =>
   const sections = [
     { 
       id: 'languages', 
-      label: 'Languages', 
-      items: ['English', 'Tamil', 'Korean', 'Japanese', 'Spanish', 'French', 'Malayalam', 'Hindi', 'Telugu', 'Chinese'],
-      color: 'text-accent-red' 
+      label: 'LANGUAGE SELECTOR', 
+      items: ['Tamil', 'Hindi', 'English', 'Korean', 'Malayalam', 'Telugu'],
+      accent: 'border-accent-red' 
     },
     { 
       id: 'industries', 
-      label: 'Industries', 
-      items: ['Hollywood', 'Kollywood', 'Mollywood', 'Bollywood', 'Anime', 'K-Drama', 'European Cinema', 'Tollywood'],
-      color: 'text-accent-purple' 
+      label: 'INDUSTRY SELECTOR', 
+      items: ['Kollywood', 'Bollywood', 'Hollywood', 'K-Drama', 'Mollywood'],
+      accent: 'border-navy' 
     },
     { 
       id: 'genres', 
-      label: 'Genres', 
-      items: ['Drama', 'Sci-Fi', 'Horror', 'Comedy', 'Documentary', 'Action', 'Thriller', 'Romance', 'Animation', 'Mystery'],
-      color: 'text-white/60' 
+      label: 'GENRE MULTI-SELECT', 
+      items: ['Action', 'Drama', 'Horror', 'Romance', 'Comedy', 'Thriller', 'Sci-Fi', 'Fantasy', 'Adventure', 'Mystery'],
+      accent: 'border-accent-gold' 
     },
     { 
       id: 'moods', 
-      label: 'Moods', 
-      items: ['Epic', 'Intimate', 'Melancholic', 'Uplifting', 'Dark', 'Nostalgic', 'Experimental', 'Cinematic', 'Energetic', 'Relaxing'],
-      color: 'text-accent-gold' 
+      label: 'MOOD MULTI-SELECT', 
+      items: ['Dark', 'Happy', 'Intense', 'Romantic', 'Sad', 'Chill', 'Epic', 'Melancholic', 'Energetic', 'Relaxing'],
+      accent: 'border-navy' 
     },
   ];
 
   const toggleItem = (sectionId: keyof typeof preferences, item: string) => {
-    const current = preferences[sectionId] as string[];
+    const current = (preferences[sectionId] as string[]) || [];
     const next = current.includes(item) 
       ? current.filter(i => i !== item) 
       : [...current, item];
@@ -63,7 +63,7 @@ const PreferencePanel: React.FC<PreferencePanelProps> = ({ isOpen, onClose }) =>
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-40"
           />
 
           {/* Panel */}
@@ -71,35 +71,43 @@ const PreferencePanel: React.FC<PreferencePanelProps> = ({ isOpen, onClose }) =>
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 w-[420px] h-screen bg-bg-surface backdrop-blur-[24px] border-l border-border z-50 flex flex-col shadow-2xl"
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed top-0 right-0 w-full md:w-[460px] h-screen bg-cream border-l-[8px] border-double border-navy z-50 flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.2)]"
           >
             {/* Header */}
-            <div className="h-[68px] flex items-center justify-between px-8 border-b border-border">
-               <h2 className="text-xl font-serif font-bold text-text-primary italic">User Preferences</h2>
-               <button onClick={onClose} className="w-10 h-10 border border-border rounded-full flex items-center justify-center text-text-muted hover:bg-bg-card hover:text-text-primary transition-all">
+            <div className="h-[72px] flex items-center justify-between px-8 border-b-[4px] border-navy bg-white relative overflow-hidden">
+               <div className="absolute inset-0 starburst opacity-10 pointer-events-none" />
+               <div className="flex items-center gap-3 relative z-10">
+                  <Settings2 className="text-accent-red" size={24} />
+                  <h2 className="text-2xl font-display text-navy uppercase tracking-tighter">PREFERENCES</h2>
+               </div>
+               <button onClick={onClose} className="w-10 h-10 border-2 border-navy flex items-center justify-center text-navy hover:bg-accent-red hover:text-white transition-all shadow-[3px_3px_0px_#1A1A2E] active:shadow-none active:translate-x-1 active:translate-y-1">
                   <X size={20} />
                </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar focus:outline-none">
-               {/* Content Type */}
-               <section>
-                  <label className="text-[11px] uppercase text-accent-red tracking-[3px] font-black mb-4 block">Content Type</label>
-                  <div className="grid grid-cols-2 gap-3">
-                     {['movies', 'both'].map(type => (
+            <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar pr-6">
+               {/* Content Type Toggle */}
+               <section className="bg-white border-[3px] border-navy p-6 shadow-[6px_6px_0px_#E8943A]">
+                  <label className="text-[10px] font-black uppercase text-accent-red tracking-[0.3em] mb-6 block">FORMAT SELECTION</label>
+                  <div className="grid grid-cols-2 gap-4">
+                     {[
+                       { id: 'movies', label: 'FEATURE FILMS' },
+                       { id: 'both', label: 'FILMS & SERIES' }
+                     ].map(type => (
                         <button 
-                          key={type}
-                          onClick={() => setPreferences({ ...preferences, contentType: type as any })}
+                          key={type.id}
+                          onClick={() => setPreferences({ ...preferences, contentType: type.id as any })}
                           className={clsx(
-                            "h-12 rounded-2xl flex items-center justify-center text-[11px] font-black uppercase tracking-widest transition-all duration-500 border",
-                            preferences.contentType === type 
-                              ? "bg-gradient-to-r from-accent-red to-accent-purple border-transparent text-white shadow-lg shadow-accent-red/20" 
-                              : "bg-bg-card border-border text-text-muted hover:border-text-hint hover:bg-bg-glass"
+                            "h-14 border-2 font-black uppercase tracking-widest text-[11px] transition-all relative overflow-hidden",
+                            preferences.contentType === type.id 
+                              ? "bg-navy text-white border-navy shadow-[4px_4px_0px_#C8391A]" 
+                              : "bg-cream/30 border-navy/10 text-navy/40 hover:border-navy hover:text-navy"
                           )}
                         >
-                           {type}
+                           {type.label}
+                           {preferences.contentType === type.id && <div className="absolute top-0 right-0 p-1"><Check size={12} /></div>}
                         </button>
                      ))}
                   </div>
@@ -107,25 +115,27 @@ const PreferencePanel: React.FC<PreferencePanelProps> = ({ isOpen, onClose }) =>
 
                {/* Multi-select Sections */}
                {sections.map(section => (
-                 <section key={section.id}>
-                    <label className={clsx("text-[11px] uppercase tracking-[3px] font-black mb-4 block opacity-80", section.color)}>
-                       {section.label}
-                    </label>
-                    <div className="flex flex-wrap gap-2.5">
-                       {section.items.map(item => {
-                         const isSelected = (preferences[section.id as keyof typeof preferences] as string[]).includes(item);
+                 <section key={section.id} className="space-y-6">
+                    <div className="flex items-center gap-4">
+                       <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-navy/40 whitespace-nowrap">{section.label}</h3>
+                       <div className="h-[2px] flex-1 bg-navy/5" />
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                       {(section.items || []).map(item => {
+                         const currentSection = (preferences as any)?.[section.id] || [];
+                         const isSelected = Array.isArray(currentSection) && currentSection.includes(item);
                          return (
                            <button 
                             key={item}
                             onClick={() => toggleItem(section.id as keyof typeof preferences, item)}
                             className={clsx(
-                              "h-[38px] px-5 rounded-full text-[13px] font-bold transition-all duration-300 border flex items-center gap-2",
+                              "h-10 px-5 border-2 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
                               isSelected 
-                                ? "bg-accent-red/10 border-accent-red/40 text-accent-red shadow-[0_4px_12px_rgba(229,9,20,0.1)]" 
-                                : "bg-bg-card border-border text-text-muted hover:bg-bg-glass hover:border-text-hint hover:-translate-y-[1px]"
+                                ? "bg-accent-red text-white border-navy shadow-[3px_3px_0px_#1A1A2E] -translate-y-0.5" 
+                                : "bg-white border-navy/10 text-navy/60 hover:border-navy hover:text-navy"
                             )}
                            >
-                              {isSelected && <Check size={12} strokeWidth={3} />}
+                              {isSelected && <Star size={10} fill="currentColor" />}
                               {item}
                            </button>
                          );
@@ -136,12 +146,13 @@ const PreferencePanel: React.FC<PreferencePanelProps> = ({ isOpen, onClose }) =>
             </div>
 
             {/* Footer / Apply Button */}
-            <div className="p-8 bg-bg-surface border-t border-border">
+            <div className="p-8 border-t-[4px] border-navy bg-white relative overflow-hidden">
+               <div className="absolute inset-0 starburst opacity-10 pointer-events-none" />
                <button 
                 onClick={handleApply}
-                className="w-full h-15 bg-gradient-to-r from-accent-red to-accent-purple rounded-2xl text-[14px] font-black text-white uppercase tracking-[3px] shadow-2xl hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all outline-none"
+                className="vintage-button w-full h-16 text-xl relative z-10"
                >
-                  APPLY CHANGES
+                  UPDATE PROJECTIONS
                </button>
             </div>
           </motion.div>

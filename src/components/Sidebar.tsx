@@ -14,6 +14,7 @@ import {
   Monitor, 
   Trophy,
   Armchair,
+  BookOpen,
   X
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -52,14 +53,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [activeLibraryTab, setActiveLibraryTab] = useState<'history' | 'watchlist'>('history');
   const [activeTypeTab, setActiveTypeTab] = useState<'movie' | 'series'>('movie');
   
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('theme') !== 'light';
-    } catch (error) {
-      console.error('Failed to read theme from localStorage', error);
-      return true;
-    }
-  });
+  // Theme is strictly light/retro cream
+  useEffect(() => {
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  }, []);
   
   const { 
     watchedMovies, 
@@ -74,22 +72,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     wishlistAnime
   } = useNavrasa();
   
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('light');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.add('light');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
 
-  const wishlistTotal = wishlistMovies.length + wishlistSeries.length + wishlistAnime.length;
+
+  const wishlistTotal = (wishlistMovies?.length || 0) + (wishlistSeries?.length || 0) + (wishlistAnime?.length || 0);
   const navItems = [
     { icon: <Film size={20} />, label: 'Movies', path: '/' },
     { icon: <Tv size={20} />, label: 'TV Series', path: '/series' },
     { icon: <Zap size={18} />, label: 'Anime', path: '/anime' },
     { icon: <Library size={20} />, label: `Wishlist (${wishlistTotal})`, path: '/wishlist' },
+    { icon: <BookOpen size={20} />, label: 'My Diary', path: '/diary' },
     { icon: <Library size={20} />, label: 'Import Cinema', path: '/library' },
   ];
 
@@ -106,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <aside
       className={clsx(
-        "w-[240px] fixed h-screen border-r border-border bg-bg-surface z-40 md:z-20 flex flex-col transition-all duration-300",
+        "w-[240px] fixed h-screen border-r-[4px] border-navy bg-navy z-40 md:z-20 flex flex-col transition-all duration-300",
         "md:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}
@@ -114,21 +105,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <button
         onClick={onClose}
         aria-label="Close menu"
-        className="absolute top-3 right-3 md:hidden h-8 w-8 rounded-full glass flex items-center justify-center text-text-primary hover:text-accent-red transition-colors"
+        className="absolute top-3 right-3 md:hidden h-8 w-8 border-2 border-cream flex items-center justify-center text-cream hover:bg-accent-red transition-colors"
       >
         <X size={16} />
       </button>
       {/* Top Logo */}
-      <Link to="/" onClick={onClose} className="p-6 border-b border-border block hover:bg-bg-card transition-colors">
+      <Link to="/" onClick={onClose} className="p-6 border-b-[4px] border-navy bg-accent-red block hover:bg-accent-gold transition-colors group">
         <div className="flex items-center gap-2">
-          <span className="text-accent-red text-xl">✦</span>
-          <span className="font-bold text-lg text-text-primary">Navarasa <span className="text-accent-red">AI</span></span>
+          <span className="text-cream text-2xl group-hover:animate-spin">✦</span>
+          <span className="font-display text-xl text-cream tracking-tighter">Navarasa <span className="text-navy">AI</span></span>
         </div>
-        <div className="text-[11px] text-text-muted uppercase tracking-[0.2em] mt-1 font-medium">AI Cinema Guide</div>
+        <div className="text-[10px] text-cream uppercase tracking-[0.3em] mt-1 font-black opacity-80">Cinema Guide</div>
       </Link>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 py-8 space-y-1 custom-scrollbar flex flex-col">
+      <nav className="flex-1 overflow-y-auto p-4 py-8 space-y-2 custom-scrollbar flex flex-col bg-navy">
         {navItems.map((item) => {
           const isActive =
             location.pathname === item.path ||
@@ -141,43 +132,44 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               to={item.path}
               onClick={onClose}
               className={clsx(
-                "w-full h-12 px-5 flex items-center gap-[14px] rounded-xl transition-all duration-300 group",
+                "w-full h-12 px-5 flex items-center gap-[14px] transition-all duration-300 group relative",
                 isActive 
-                  ? "bg-accent-red/10 border-l-[3px] border-accent-red text-text-primary" 
-                  : "text-text-muted hover:bg-bg-card hover:text-text-primary hover:translate-x-1"
+                  ? "bg-cream text-navy font-black shadow-[4px_4px_0px_#E8943A]" 
+                  : "text-cream/70 hover:bg-white/10 hover:text-cream hover:translate-x-1"
               )}
             >
-              <span className={clsx("transition-colors", isActive ? "text-accent-red" : "text-text-muted group-hover:text-text-primary")}>
+              <span className={clsx("transition-colors", isActive ? "text-accent-red" : "text-cream/50 group-hover:text-cream")}>
                 {item.icon}
               </span>
-              <span className={clsx("text-sm transition-all", isActive ? "font-bold" : "font-medium")}>
+              <span className={clsx("text-xs uppercase tracking-widest font-black")}>
                 {item.label}
               </span>
+              {isActive && <div className="absolute right-2 text-accent-red animate-pulse">★</div>}
             </Link>
           );
         })}
 
         {/* My Library Section */}
-        <div className="mt-8 pt-8 border-t border-border flex-1 flex flex-col">
-          <label className="px-5 text-[10px] text-text-muted uppercase tracking-[0.2em] font-bold mb-4 flex items-center gap-2">
+        <div className="mt-8 pt-8 border-t-2 border-cream/20 flex-1 flex flex-col">
+          <label className="px-5 text-[10px] text-accent-gold uppercase tracking-[0.3em] font-black mb-4 flex items-center gap-2">
             <Library size={12} />
             My Library
           </label>
           
           {/* Main Library Tabs */}
           <div className="px-5 mb-4">
-             <div className="flex gap-4 text-[13px] border-b border-border">
+             <div className="flex gap-4 text-[11px] border-b border-cream/20 font-black uppercase tracking-tighter">
                 {(['history', 'watchlist'] as const).map(tab => (
                   <button 
                     key={tab}
                     onClick={() => setActiveLibraryTab(tab)}
                     className={clsx(
-                      "pb-2 transition-all relative font-medium capitalize", 
-                      activeLibraryTab === tab ? "text-text-primary" : "text-text-muted"
+                      "pb-2 transition-all relative", 
+                      activeLibraryTab === tab ? "text-cream" : "text-cream/40 hover:text-cream/60"
                     )}
                   >
                     {tab}
-                    {activeLibraryTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-red" />}
+                    {activeLibraryTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent-red" />}
                   </button>
                 ))}
              </div>
@@ -190,13 +182,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 key={type}
                 onClick={() => setActiveTypeTab(type)}
                 className={clsx(
-                  "px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider transition-all",
+                  "px-3 py-1 text-[10px] font-black uppercase tracking-wider transition-all border-2",
                   activeTypeTab === type 
-                    ? "bg-bg-card text-accent-red border border-accent-red/20" 
-                    : "text-text-hint hover:text-text-primary border border-transparent"
+                    ? "bg-accent-gold border-accent-gold text-navy" 
+                    : "border-cream/20 text-cream/40 hover:border-cream/40 hover:text-cream/60"
                 )}
                >
-                 {type}s
+                 {type === 'series' ? 'Series' : 'Movies'}
                </button>
              ))}
           </div>
@@ -204,24 +196,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           {/* Library List */}
           <div className="flex-1 overflow-y-auto px-2 space-y-1 custom-scrollbar min-h-[200px]">
             <div className="flex items-center justify-between px-3 py-2">
-              <button className="text-[10px] text-text-hint hover:text-text-primary uppercase tracking-wider" onClick={() => clearLibrary(activeTypeTab, activeCategory)}>Clear All</button>
+              <button className="text-[10px] text-cream/30 hover:text-accent-red uppercase font-black tracking-widest" onClick={() => clearLibrary(activeTypeTab, activeCategory)}>Clear All</button>
             </div>
             {currentItems.length > 0 ? (
               currentItems.map((item, i) => (
                 <div 
                   key={`${item.title}-${i}`}
-                  className="group px-3 py-2.5 rounded-xl hover:bg-bg-card transition-all flex items-center justify-between cursor-default"
+                  className="group px-3 py-2.5 rounded-none hover:bg-white/5 border-b border-cream/5 flex items-center justify-between cursor-default"
                 >
                   <div className="overflow-hidden">
-                    <div className="text-[13px] font-bold text-text-primary truncate">{item.title}</div>
-                    <div className="text-[10px] text-text-hint font-medium">{item.year}</div>
+                    <div className="text-[12px] font-black text-cream truncate">{item.title}</div>
+                    <div className="text-[10px] text-cream/40 font-bold uppercase tracking-tighter">{item.year}</div>
                   </div>
-                  <button onClick={() => removeLibraryItem(activeTypeTab, activeCategory, item.title)} className="text-text-hint opacity-0 group-hover:opacity-100 transition-all">✕</button>
+                  <button onClick={() => removeLibraryItem(activeTypeTab, activeCategory, item.title)} className="text-cream/30 opacity-0 group-hover:opacity-100 hover:text-accent-red transition-all">✕</button>
                 </div>
               ))
             ) : (
-              <div className="px-5 py-8 text-center">
-                <div className="text-[11px] text-text-hint italic font-medium">No items found</div>
+              <div className="px-5 py-8 text-center border-2 border-dashed border-cream/10 m-2">
+                <div className="text-[10px] text-cream/30 italic font-black uppercase tracking-widest">Empty Reels</div>
               </div>
             )}
           </div>
@@ -229,44 +221,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </nav>
 
       {/* Bottom Sidebar */}
-      <div className="p-6 border-t border-border bg-bg-surface">
-        <div className="flex items-center justify-between mb-6">
-           <button 
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full h-10 glass rounded-full relative flex items-center px-1 group overflow-hidden"
-           >
-              <div 
-                className={clsx(
-                  "absolute h-8 w-8 rounded-full transition-all duration-500 flex items-center justify-center z-10",
-                  isDarkMode ? "bg-accent-red left-1 shadow-[0_0_12px_rgba(229,9,20,0.4)]" : "bg-accent-gold right-1 shadow-[0_0_12px_rgba(245,197,24,0.4)]"
-                )}
-              >
-                {isDarkMode ? <Moon size={14} className="text-white" /> : <Sun size={14} className="text-stone-900" />}
-              </div>
-              <div className="flex justify-between w-full px-3 text-[10px] font-bold text-text-hint uppercase tracking-tighter">
-                <span className={clsx("transition-opacity", isDarkMode ? "opacity-100" : "opacity-0")}>Dark</span>
-                <span className={clsx("transition-opacity", !isDarkMode ? "opacity-100" : "opacity-0")}>Light</span>
-              </div>
-           </button>
-        </div>
+      <div className="p-6 border-t-[4px] border-navy bg-navy">
+        {/* Theme toggle removed per Fix 1 */}
         
         <Link
           to="/profile"
           onClick={onClose}
-          className="flex items-center gap-3 cursor-pointer group hover:bg-bg-card/50 p-2 -m-2 rounded-xl transition-all"
+          className="flex items-center gap-3 cursor-pointer group p-2 border-2 border-transparent hover:border-accent-gold transition-all"
         >
-          <div className="w-10 h-10 rounded-full border-2 border-accent-red bg-bg-card p-0.5 shadow-lg overflow-hidden flex items-center justify-center">
+          <div className="w-10 h-10 border-2 border-accent-gold bg-navy p-0.5 shadow-[3px_3px_0px_#C8391A] overflow-hidden flex items-center justify-center">
              {userProfile.avatarType === 'abstract' ? (
-                <div className={clsx("w-full h-full rounded-full bg-gradient-to-br", ABSTRACT_GRADIENTS[userProfile.avatarIndex])} />
+                <div className={clsx("w-full h-full bg-gradient-to-br", ABSTRACT_GRADIENTS[userProfile.avatarIndex])} />
              ) : (
-                <div className="w-full h-full rounded-full bg-bg-card flex items-center justify-center text-accent-red">
-                  {CINEMA_ICONS[userProfile.avatarIndex]}
+                <div className="w-full h-full flex items-center justify-center text-accent-gold">
+                   {CINEMA_ICONS[userProfile.avatarIndex]}
                 </div>
              )}
           </div>
           <div className="overflow-hidden">
-            <div className="text-sm font-bold text-text-primary leading-tight truncate group-hover:text-accent-red transition-colors">{userProfile.name}</div>
-            <div className="text-[11px] text-text-muted font-medium">Cinephile</div>
+            <div className="text-xs font-black text-cream leading-tight truncate group-hover:text-accent-gold transition-colors uppercase tracking-widest">{userProfile.name}</div>
+            <div className="text-[10px] text-accent-gold font-bold uppercase tracking-widest">Cinephile</div>
           </div>
         </Link>
       </div>

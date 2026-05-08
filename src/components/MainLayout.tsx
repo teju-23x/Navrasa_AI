@@ -5,21 +5,20 @@ import TopBar from './TopBar';
 import PreferencePanel from './PreferencePanel';
 import { useNavrasa } from '../context/NavrasaContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { Star } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const [isPrefsOpen, setIsPrefsOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { loading, error } = useNavrasa();
+  const { loading, error, setError } = useNavrasa();
   const location = useLocation();
 
-  // Hide player on detail pages
-  const isDetailPage = location.pathname.startsWith('/series/') || location.pathname.startsWith('/movie/');
   React.useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen bg-bg-primary text-text-primary font-sans selection:bg-accent-red selection:text-white transition-colors duration-300">
+    <div className="flex min-h-screen bg-cream text-navy font-sans selection:bg-accent-red selection:text-white transition-colors duration-300">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex-1 md:ml-[240px] flex flex-col min-h-screen relative">
@@ -28,7 +27,13 @@ const MainLayout: React.FC = () => {
         {/* Page Content */}
         <main className="flex-1 pb-10">
           <AnimatePresence mode="wait">
-            <motion.div key={location.pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <motion.div 
+              key={location.pathname} 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: -10 }} 
+              transition={{ duration: 0.3 }}
+            >
               <Outlet key={location.pathname} />
             </motion.div>
           </AnimatePresence>
@@ -37,42 +42,60 @@ const MainLayout: React.FC = () => {
         {/* Preference Panel */}
         <PreferencePanel isOpen={isPrefsOpen} onClose={() => setIsPrefsOpen(false)} />
 
-        {/* Full Screen Loading Overlay */}
+        {/* Retro Loading Overlay */}
         <AnimatePresence>
           {loading && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-bg-primary/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center"
+              className="fixed inset-0 bg-navy z-[100] flex flex-col items-center justify-center overflow-hidden"
             >
-               <div className="relative flex items-center justify-center mb-8">
-                  <div 
-                    className="absolute w-[280px] h-[280px] rounded-full border-[2px] border-transparent border-t-[#E50914] border-r-[#E50914]/20 animate-spin" 
-                    style={{ animationDuration: '1.2s' }}
-                  />
-                  <div className="flex items-center gap-3 text-4xl font-black relative z-10">
-                    <span className="text-[#E50914]">✦</span>
-                    <span className="text-text-primary tracking-wide">Navarasa</span>
-                    <span className="text-[#E50914]">AI</span>
+               <div className="absolute inset-0 starburst opacity-20 animate-slow-rotate" />
+               <div className="relative flex flex-col items-center justify-center z-10">
+                  <div className="w-32 h-32 border-[8px] border-double border-accent-gold border-t-accent-red rounded-full animate-spin mb-10 shadow-[0_0_30px_rgba(200,57,26,0.3)]" />
+                  
+                  <div className="text-center space-y-4">
+                    <h2 className="text-4xl md:text-6xl font-display text-white tracking-tighter drop-shadow-lg">
+                      NAVARASA <span className="text-accent-red">AI</span>
+                    </h2>
+                    <p className="text-accent-gold text-[11px] font-black uppercase tracking-[0.4em] animate-flash">
+                      ★ LOADING With your preferences... ★
+                    </p>
                   </div>
                </div>
-               <p className="text-text-muted text-xl italic font-serif tracking-wide text-center mt-6">
-                 Analyzing your taste profile...
-               </p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Global Error Toast */}
         <AnimatePresence>
-           {error && <ErrorToast message={error} />}
+           {error && (
+             <motion.div 
+               initial={{ x: 100, opacity: 0 }}
+               animate={{ x: 0, opacity: 1 }}
+               exit={{ x: 100, opacity: 0 }}
+               className="fixed bottom-10 right-10 z-[110] bg-white border-[4px] border-navy p-6 shadow-[8px_8px_0px_#C8391A] max-w-sm"
+             >
+                <div className="flex gap-4">
+                   <div className="w-10 h-10 bg-accent-red border-2 border-navy flex items-center justify-center text-white flex-shrink-0">
+                      <Star size={20} />
+                   </div>
+                   <div className="space-y-1">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-navy/40">Technical Error</h4>
+                      <p className="text-sm font-bold text-navy">{error}</p>
+                      <button onClick={() => setError(null)} className="text-accent-red text-[10px] font-black uppercase tracking-widest mt-2 hover:underline">Dismiss</button>
+                   </div>
+                </div>
+             </motion.div>
+           )}
         </AnimatePresence>
       </div>
+
       {isSidebarOpen && (
         <button
           aria-label="Close menu overlay"
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -80,23 +103,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-
-
-const ErrorToast: React.FC<{ message: string }> = ({ message }) => {
-   const { setError } = useNavrasa();
-   return (
-    <motion.div 
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -80, opacity: 0 }}
-      className="fixed top-4 right-3 md:top-8 md:right-8 w-[calc(100%-1.5rem)] md:w-[400px] bg-bg-surface border border-accent-red/20 border-l-[6px] border-l-accent-red rounded-2xl p-5 md:p-6 pr-12 md:pr-14 shadow-[0_24px_48px_rgba(0,0,0,0.12)] z-[110]"
-    >
-       <div className="flex flex-col gap-1">
-          <div className="text-accent-red text-xs font-black uppercase tracking-widest">System Error</div>
-          <div className="text-text-primary text-[15px] font-bold leading-relaxed">{message}</div>
-       </div>
-       <button onClick={() => setError(null)} className="absolute top-6 right-6 text-text-hint hover:text-text-primary transition-colors text-xl font-light">✕</button>
-    </motion.div>
-   );
-}
 export default MainLayout;
